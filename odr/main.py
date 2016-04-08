@@ -1,10 +1,13 @@
 import click
 from odr.compose import DockerCompose
+from odr.decorators import verify_docker_machine
+from odr.utils.os import run_cmd
 
 
 @click.group()
 @click.option('-f', 'path', default='.odr.cfg')
 @click.pass_context
+@verify_docker_machine
 def cli(ctx, path):
     if ctx.obj is None:
         ctx.obj = {}
@@ -45,6 +48,14 @@ def run(ctx, task, list_tasks):
     #cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('down', *args)
 
     #click.echo('Executing: {}'.format(cmd))
+
+
+@cli.command()
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
+@click.pass_context
+def ps(ctx, args):
+    cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('ps', *args)
+    run_cmd(cmd)
 
 if __name__ == "__main__":
     cli(obj={})
