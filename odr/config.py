@@ -29,5 +29,18 @@ class Config(object):
 
         return False
 
+    def get_command(self, command_name):
+        cmd_configuration = self.__config.get('commands').get(command_name)
+        if not cmd_configuration:
+            raise Exception('{0} is not a recognised command'.format(command_name))
+
+        conf = {}
+        if cmd_configuration.get('file'):
+            conf['files'] = [cmd_configuration.get('file')]
+
+        conf['args'] = [cmd_configuration['docker-command'], cmd_configuration['container']]
+
+        return conf
+
     def get_commands(self):
-        return self.__config['commands']
+        return self.__config.get('commands', {}).iterkeys()

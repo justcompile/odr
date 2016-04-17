@@ -20,3 +20,15 @@ class DockerCompose(object):
             c.extend(args)
 
         return c
+
+    def custom(self, command_name):
+        custom_command_data = self.config.get_command(command_name)
+
+        args = []
+
+        for f in custom_command_data.get('files', []):
+            args.extend(['-f', f])
+
+        args.extend(custom_command_data['args'])
+
+        return self.cmd(*args)

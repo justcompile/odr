@@ -1,5 +1,7 @@
 import subprocess
 
+import sys
+
 import click
 from odr.compose import DockerCompose
 from odr.config import Config
@@ -62,16 +64,12 @@ def run(ctx, cmd, list_commands):
     """Runs task specified in the configuration file"""
 
     if not cmd or list_commands:
-        click.echo("Displaying tasks...")
+        click.echo("Tasks:\n")
         for custom_cmd in ctx.obj['config'].get_commands():
             click.echo(custom_cmd)
-        else:
-            click.echo('No commands defined')
     else:
-        click.echo("Should run something")
-    #cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('down', *args)
-
-    #click.echo('Executing: {}'.format(cmd))
+        command = DockerCompose(config=ctx.obj['config']).custom(cmd)
+        subprocess.call(command)
 
 
 @cli.command()
