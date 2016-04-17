@@ -1,17 +1,24 @@
+import subprocess
+
 import click
 from odr.compose import DockerCompose
+from odr.config import Config
 from odr.decorators import verify_docker_machine
 from odr.utils.os import run_cmd
 
 
 @click.group()
-@click.option('-f', 'path', default='.odr.cfg')
+@click.option('-f', 'path', default='odr.cfg')
 @click.pass_context
 @verify_docker_machine
 def cli(ctx, path):
     if ctx.obj is None:
         ctx.obj = {}
     ctx.obj['FILE_PATH'] = path
+    cfg = Config(path)
+    cfg.load()
+
+    ctx.obj['config'] = cfg
 
 
 @cli.command()
@@ -19,9 +26,10 @@ def cli(ctx, path):
 @click.pass_context
 def up(ctx, args):
     """Brings up one or more services"""
-    cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('up', *args)
+    cmd = DockerCompose(config=ctx.obj['config']).cmd('up', *args)
 
     click.echo('Executing: {}'.format(cmd))
+    subprocess.call(cmd)
 
 
 @cli.command()
@@ -29,20 +37,36 @@ def up(ctx, args):
 @click.pass_context
 def down(ctx, args):
     """Brings down one or more services"""
-    cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('down', *args)
+    cmd = DockerCompose(config=ctx.obj['config']).cmd('down', *args)
 
     click.echo('Executing: {}'.format(cmd))
+    subprocess.call(cmd)
 
 
 @cli.command()
-@click.argument('task', required=False)
-@click.option('-l', 'list_tasks', is_flag=True)
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, task, list_tasks):
+def logs(ctx, args):
+    """Displays log out put for all or one service"""
+    cmd = DockerCompose(config=ctx.obj['config']).cmd('logs', *args)
+
+    click.echo('Executing: {}'.format(cmd))
+    subprocess.call(cmd)
+
+
+@cli.command()
+@click.argument('cmd', required=False)
+@click.option('-l', 'list_commands', is_flag=True)
+@click.pass_context
+def run(ctx, cmd, list_commands):
     """Runs task specified in the configuration file"""
 
-    if not task or list_tasks:
+    if not cmd or list_commands:
         click.echo("Displaying tasks...")
+        for custom_cmd in ctx.obj['config'].get_commands():
+            click.echo(custom_cmd)
+        else:
+            click.echo('No commands defined')
     else:
         click.echo("Should run something")
     #cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('down', *args)
@@ -54,7 +78,7 @@ def run(ctx, task, list_tasks):
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def ps(ctx, args):
-    cmd = DockerCompose(path=ctx.obj['FILE_PATH']).cmd('ps', *args)
+    cmd = DockerCompose(config=ctx.obj['config']).cmd('ps', *args)
     run_cmd(cmd)
 
 if __name__ == "__main__":
