@@ -39,7 +39,7 @@ setup(
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
-            'odr = odr.main:main',
+            'odr = odr.main:cli',
         ]
     },
     classifiers=[

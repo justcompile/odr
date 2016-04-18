@@ -10,7 +10,7 @@ from odr.utils.os import run_cmd
 
 
 @click.group()
-@click.option('-f', 'path', default='odr.cfg')
+@click.option('-f', 'path', default='odr.cfg', type=click.Path())
 @click.pass_context
 @verify_docker_machine
 def cli(ctx, path):
