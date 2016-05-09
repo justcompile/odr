@@ -79,5 +79,13 @@ def ps(ctx, args):
     cmd = DockerCompose(config=ctx.obj['config']).cmd('ps', *args)
     run_cmd(cmd)
 
+
+@cli.command()
+@click.argument('args', nargs=-1, type=click.UNPROCESSED)
+@click.pass_context
+def build(ctx, args):
+    cmd = DockerCompose(config=ctx.obj['config']).cmd('build', *args)
+    run_cmd(cmd)
+
 if __name__ == "__main__":
     cli(obj={})
