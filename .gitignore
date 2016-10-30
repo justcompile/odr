@@ -2,3 +2,5 @@
 venv
 *.pyc
 Odr.egg-info
+build
+dist
