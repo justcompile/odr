@@ -7,6 +7,9 @@ def locate_compose_files(base_path=''):
     Finds `docker-compose.yml` files in this, and immediate subdirectories of the CWD
     :return: list of relative paths of `docker-compose.yml` files
     """
+    if base_path == '.':
+        return glob('./docker-compose.yml')
+
     if base_path and not base_path.endswith('/'):
         base_path += '/'
 

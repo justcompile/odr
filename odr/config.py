@@ -49,6 +49,11 @@ class Config(object):
 
         conf['args'] = [cmd_configuration['docker-command'], cmd_configuration['container']]
 
+        try:
+            conf['args'].extend(cmd_configuration['command'].split())
+        except KeyError:
+            pass
+
         return conf
 
     def get_commands(self):
