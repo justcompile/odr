@@ -1,5 +1,5 @@
+import time
 import subprocess
-
 import sys
 
 import click
@@ -12,7 +12,6 @@ from odr.utils.os import run_cmd
 @click.group()
 @click.option('-f', 'path', default='odr.cfg', type=click.Path())
 @click.pass_context
-#@verify_docker_machine
 def cli(ctx, path):
     if ctx.obj is None:
         ctx.obj = {}
@@ -28,7 +27,15 @@ def cli(ctx, path):
 @click.pass_context
 def up(ctx, args):
     """Brings up one or more services"""
-    cmd = DockerCompose(config=ctx.obj['config']).cmd('up', *args)
+    docker_compose = DockerCompose(config=ctx.obj['config'])
+
+    daemonised_services = docker_compose.daemonised_containers('up')
+    if daemonised_services:
+        click.echo('Daemonising services: {}'.format(daemonised_services))
+        subprocess.call(daemonised_services)
+        time.sleep(5)
+
+    cmd = docker_compose.cmd('up', *args)
 
     click.echo('Executing: {}'.format(cmd))
     subprocess.call(cmd)

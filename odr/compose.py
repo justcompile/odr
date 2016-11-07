@@ -6,6 +6,19 @@ class DockerCompose(object):
     def __init__(self, config):
         self.config = config
 
+    def daemonised_containers(self, execution_command):
+        c = ["docker-compose"]
+
+        files_to_daemonise = self.config.get_daemonise_files()
+        if not files_to_daemonise:
+            return []
+
+        for required_file in files_to_daemonise:
+            c.extend(['-f', required_file])
+
+        c.extend([execution_command, '-d'])
+        return c
+
     def cmd(self, *args):
         c = ["docker-compose"]
 

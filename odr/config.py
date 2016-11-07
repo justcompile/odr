@@ -29,6 +29,15 @@ class Config(object):
 
         return False
 
+    def get_daemonise_files(self):
+        try:
+            if self.__config['files']['daemonise_required']:
+                return self.get_required_files()
+        except KeyError:
+            pass
+
+        return []
+
     def get_command(self, command_name):
         cmd_configuration = self.__config.get('commands').get(command_name)
         if not cmd_configuration:
